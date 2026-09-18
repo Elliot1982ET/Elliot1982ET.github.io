@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#d85f30"/>
+<title>Speak & Spell E.T. Screen</title>
+<style>
+:root{
+  --toy-red:#f34835;
+  --toy-red-dark:#d93d2f;
+  --black:#0f1114;
+  --black-2:#181b20;
+  --cream:#e7e4da;
+  --yellow:#f1d74e;
+  --blue:#79bfd2;
+  --button:#ef7a5f;
+  --display:#63f19b;
+  --display-dim:#2b7850;
+  --map:#7af4a7;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  min-height:100%;
+  background:var(--cream);
+  font-family:Arial, Helvetica, sans-serif;
+}
+body{
+  overflow:hidden;
+  background:var(--cream);
+}
+.wrap{
+  min-height:100svh;
+  display:grid;
+  place-items:center;
+  padding:14px;
+}
+.toy{
+  width:min(95vw, 390px);
+  background:linear-gradient(180deg, #ff4b39 0%, var(--toy-red) 45%, var(--toy-red-dark) 100%);
+  border-radius:34px 34px 18px 18px;
+  padding:14px 14px 18px;
+  box-shadow:
+    0 0 0 3px #d43627,
+    0 0 0 8px rgba(255,112,74,.8),
+    0 24px 60px rgba(0,0,0,.42);
+  position:relative;
+}
+.toy:before{
+  content:"";
+  position:absolute; inset:8px;
+  border-radius:28px 28px 12px 12px;
+  pointer-events:none;
+  box-shadow:
+    inset 2px 2px 0 rgba(255,228,218,.2),
+    inset -2px -2px 0 rgba(140,29,20,.28);
+}
+.handle{
+  height:52px;
+  width:min(86%, 310px);
+  margin:0 auto 12px;
+  border-radius:30px;
+  background:var(--cream);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.4),
+    inset 0 -2px 0 rgba(0,0,0,.05);
+}
+.band{
+  background:linear-gradient(180deg, #1b1d22 0%, #0f1114 100%);
+  min-height:108px;
+  display:grid;
+  grid-template-columns:84px 1fr;
+  gap:12px;
+  align-items:stretch;
+  padding:12px;
+}
+.speaker{
+  position:relative;
+  overflow:hidden;
+}
+.speaker:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    repeating-linear-gradient(to bottom,
+      rgba(255,255,255,.09) 0 3px,
+      transparent 4px 8px);
+  opacity:.95;
+}
+.display{
+  position:relative;
+  border-radius:3px;
+  background:linear-gradient(180deg, #121418 0%, #0a0c0f 100%);
+  overflow:hidden;
+  box-shadow:inset 0 0 18px rgba(84,255,163,.06);
+}
+.display:before{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    repeating-linear-gradient(to bottom,
+      rgba(99,241,155,.05) 0 1px,
+      transparent 2px 4px);
+  pointer-events:none;
+}
+.display-main{
+  position:relative;
+  z-index:2;
+  height:100%;
+}
+.text-stage,
+.loading-stage,
+.map-stage{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transition:opacity .28s ease;
+  pointer-events:none;
+}
+.text-stage.active,
+.loading-stage.active,
+.map-stage.active{
+  opacity:1;
+}
+.text-stage{
+  display:grid;
+  place-items:center;
+  padding:8px 12px;
+}
+#screenText{
+  width:100%;
+  text-align:center;
+  color:var(--display);
+  font-family:"Lucida Console","Courier New",monospace;
+  font-size:clamp(15px, 4.9vw, 24px);
+  line-height:1.05;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  text-shadow:0 0 7px rgba(99,241,155,.45);
+  white-space:normal;
+}
+#screenText.message{
+  color:#b6ff7c;
+  font-weight:bold;
+  text-shadow:
+    0 0 8px rgba(182,255,124,.65),
+    0 0 15px rgba(182,255,124,.24);
+}
+#screenText.long{
+  font-size:clamp(13px, 4.2vw, 20px);
+  letter-spacing:.02em;
+}
+.loading-stage{
+  display:grid;
+  place-items:center;
+}
+.loading-wrap{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+}
+.dot{
+  width:10px; height:10px;
+  border-radius:50%;
+  background:var(--display);
+  box-shadow:0 0 8px rgba(99,241,155,.55);
+  opacity:.2;
+  animation:blink 1.2s infinite ease-in-out;
+}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{
+  0%, 80%, 100%{opacity:.18; transform:scale(.85)}
+  40%{opacity:1; transform:scale(1)}
+}
+.loading-symbol{
+  color:var(--display);
+  font-family:"Lucida Console","Courier New",monospace;
+  font-size:20px;
+  letter-spacing:.12em;
+  margin-right:2px;
+  text-shadow:0 0 8px rgba(99,241,155,.4);
+}
+.map-stage{
+  padding:4px 6px;
+}
+svg#mapSvg{
+  width:100%;
+  height:100%;
+  display:block;
+}
+.map-star{fill:var(--map)}
+.map-minor{opacity:.45}
+.map-major{opacity:.92}
+.map-grid{
+  stroke:rgba(122,244,167,.08);
+  stroke-width:.6;
+}
+.map-aux{
+  fill:none;
+  stroke:rgba(122,244,167,.23);
+  stroke-width:1;
+  stroke-dasharray:3 5;
+}
+.map-route{
+  fill:none;
+  stroke:rgba(122,244,167,.95);
+  stroke-width:1.8;
+  stroke-dasharray:7 8;
+  stroke-dashoffset:200;
+  filter:drop-shadow(0 0 4px rgba(122,244,167,.45));
+}
+.map-route.animate{animation:drawRoute 3.4s ease forwards}
+@keyframes drawRoute{to{stroke-dashoffset:0}}
+.map-origin{
+  fill:#b6ff7c;
+  filter:drop-shadow(0 0 5px rgba(182,255,124,.5));
+}
+.map-earth{
+  fill:#8ed5ff;
+  filter:drop-shadow(0 0 5px rgba(142,213,255,.5));
+}
+.map-ring{
+  fill:none;
+  stroke:rgba(142,213,255,.55);
+  stroke-width:1.1;
+}
+.map-scan{
+  stroke:rgba(122,244,167,.8);
+  stroke-width:1.5;
+  opacity:.75;
+  filter:drop-shadow(0 0 4px rgba(122,244,167,.45));
+  animation:scanSweep 2.8s linear infinite;
+}
+@keyframes scanSweep{
+  from{transform:translateY(-34px)}
+  to{transform:translateY(68px)}
+}
+
+.keypad{
+  margin-top:14px;
+  background:linear-gradient(180deg, #f4da59 0%, var(--yellow) 100%);
+  border-radius:18px;
+  padding:10px 10px 14px;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.38),
+    inset 0 -2px 0 rgba(0,0,0,.08);
+}
+.keyshell{
+  background:var(--blue);
+  border-radius:16px;
+  padding:10px;
+}
+.keys{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+}
+.key{
+  height:28px;
+  display:grid;
+  place-items:center;
+  border-radius:7px;
+  background:var(--button);
+  color:#402216;
+  font-family:"Arial Black", Arial, Helvetica, sans-serif;
+  font-size:11px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.42),
+    inset 0 -1px 0 rgba(0,0,0,.08),
+    0 2px 0 rgba(138,71,47,.32);
+}
+.key.yellow{background:#f2dc59}
+.logo{
+  margin-top:10px;
+  text-align:left;
+  font-weight:bold;
+  font-size:19px;
+  line-height:1;
+  padding-left:8px;
+  user-select:none;
+}
+.logo .speak{color:#f28b53}
+.logo .amp{color:#5aa9dd}
+.logo .spell{color:#5aa9dd}
+.controls{
+  margin-top:14px;
+  display:flex;
+  justify-content:center;
+}
+button{
+  appearance:none;
+  border:none;
+  cursor:pointer;
+  border-radius:999px;
+  min-width:150px;
+  padding:13px 18px;
+  background:linear-gradient(180deg,#f8e4a0 0%, #e7b053 100%);
+  color:#6b3000;
+  font:inherit;
+  font-weight:bold;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.5),
+    inset 0 -2px 0 rgba(0,0,0,.16),
+    0 3px 0 #824507,
+    0 8px 14px rgba(0,0,0,.18);
+}
+button:active{
+  transform:translateY(2px);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.5),
+    inset 0 -2px 0 rgba(0,0,0,.16),
+    0 1px 0 #824507;
+}
+@media (max-width:420px){
+  .wrap{
+    padding:8px 4px;
+    align-items:start;
+  }
+  .toy{
+    width:min(94vw, calc(88svh * 0.72));
+    padding:8px 8px 11px;
+    border-radius:26px 26px 14px 14px;
+  }
+  .handle{
+    height:42px;
+    width:86%;
+    margin-bottom:8px;
+  }
+  .band{
+    height:104px;
+    grid-template-columns:60px 1fr;
+    gap:8px;
+    padding:8px;
+  }
+  .keypad{
+    margin-top:8px;
+    padding:7px 7px 9px;
+  }
+  .keys{gap:5px}
+  .key{
+    height:23px;
+    font-size:10px;
+  }
+  .logo{
+    margin-top:7px;
+    font-size:16px;
+    padding-left:5px;
+  }
+  .controls{
+    margin-top:8px;
+  }
+  button{
+    min-width:126px;
+    padding:10px 15px;
+  }
+  #screenText{
+    font-size:clamp(13px, 4.4vw, 20px);
+  }
+  #screenText.long{
+    font-size:clamp(11px, 3.65vw, 17px);
+    letter-spacing:.01em;
+  }
+}
+
+.go-key{
+  cursor:pointer;
+  user-select:none;
+  touch-action:manipulation;
+}
+.go-key.ready{
+  animation:goPulse 1.35s ease-in-out infinite;
+}
+@keyframes goPulse{
+  0%,100%{
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.42),
+      inset 0 -1px 0 rgba(0,0,0,.08),
+      0 2px 0 rgba(138,71,47,.32);
+  }
+  50%{
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.5),
+      inset 0 -1px 0 rgba(0,0,0,.08),
+      0 2px 0 rgba(138,71,47,.32),
+      0 0 10px rgba(255,224,100,.85);
+  }
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toy">
+    <div class="handle" aria-hidden="true"></div>
+
+    <div class="band">
+      <div class="speaker" aria-hidden="true"></div>
+
+      <div class="display">
+        <div class="display-main">
+          <div class="text-stage active" id="textStage">
+            <div id="screenText"></div>
+          </div>
+
+          <div class="loading-stage" id="loadingStage">
+            <div class="loading-wrap">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+          </div>
+
+          <div class="map-stage" id="mapStage">
+            <svg id="mapSvg" viewBox="0 0 280 82" aria-label="Animated star map">
+              <g class="map-grid">
+                <line x1="0" y1="20" x2="280" y2="20"/><line x1="0" y1="41" x2="280" y2="41"/><line x1="0" y1="62" x2="280" y2="62"/>
+                <line x1="40" y1="0" x2="40" y2="82"/><line x1="80" y1="0" x2="80" y2="82"/><line x1="120" y1="0" x2="120" y2="82"/><line x1="160" y1="0" x2="160" y2="82"/><line x1="200" y1="0" x2="200" y2="82"/><line x1="240" y1="0" x2="240" y2="82"/>
+              </g>
+              <line class="map-scan" x1="0" y1="0" x2="280" y2="0"/>
+              <g class="map-star map-minor">
+                <circle cx="18" cy="11" r="1.1"/><circle cx="38" cy="31" r="1.1"/><circle cx="50" cy="16" r="1.2"/><circle cx="62" cy="54" r="1.0"/>
+                <circle cx="78" cy="22" r="1.1"/><circle cx="96" cy="63" r="1.0"/><circle cx="104" cy="13" r="1.0"/><circle cx="118" cy="33" r="1.1"/>
+                <circle cx="134" cy="52" r="1.0"/><circle cx="146" cy="18" r="1.2"/><circle cx="164" cy="40" r="1.0"/><circle cx="178" cy="17" r="1.1"/>
+                <circle cx="186" cy="58" r="1.1"/><circle cx="204" cy="24" r="1.0"/><circle cx="214" cy="50" r="1.2"/><circle cx="226" cy="12" r="1.1"/>
+                <circle cx="242" cy="37" r="1.0"/><circle cx="258" cy="18" r="1.2"/><circle cx="266" cy="58" r="1.1"/>
+              </g>
+              <g class="map-star map-major">
+                <circle cx="24" cy="58" r="2.1"/><circle cx="48" cy="44" r="1.9"/><circle cx="78" cy="48" r="2.0"/>
+                <circle cx="108" cy="34" r="1.9"/><circle cx="138" cy="28" r="2.0"/><circle cx="170" cy="36" r="1.9"/>
+                <circle cx="198" cy="26" r="1.9"/><circle cx="226" cy="30" r="2.0"/><circle cx="250" cy="22" r="2.1"/>
+              </g>
+              <path class="map-aux" d="M24 58 L48 44 L78 48 L108 34 L138 28 L170 36 L198 26 L226 30 L250 22"/>
+              <path class="map-aux" d="M48 44 L78 22 L118 33 L138 28"/>
+              <path class="map-aux" d="M138 28 L170 17 L198 26 L226 12"/>
+              <path class="map-route" id="mapRoute" d="M24 58 C36 50,40 45,48 44 S70 50,78 48 S98 39,108 34 S128 29,138 28 S160 33,170 36 S188 28,198 26 S216 28,226 30 S242 26,250 22"/>
+              <circle class="map-origin" cx="24" cy="58" r="3.2"/>
+              <circle class="map-ring" cx="250" cy="22" r="8"/>
+              <circle class="map-earth" cx="250" cy="22" r="3.3"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="keypad" aria-hidden="true">
+      <div class="keyshell">
+        <div class="keys">
+          <div class="key">OFF</div>
+          <div class="key go-key" id="goKey" role="button" tabindex="0" aria-label="Start sequence">GO</div>
+          <div class="key">A</div>
+          <div class="key">B</div>
+          <div class="key">C</div>
+
+          <div class="key yellow">D</div>
+          <div class="key">E</div>
+          <div class="key">F</div>
+          <div class="key">G</div>
+          <div class="key">H</div>
+
+          <div class="key">I</div>
+          <div class="key yellow">J</div>
+          <div class="key">K</div>
+          <div class="key">L</div>
+          <div class="key">M</div>
+
+          <div class="key">N</div>
+          <div class="key">O</div>
+          <div class="key yellow">P</div>
+          <div class="key">Q</div>
+          <div class="key">R</div>
+        </div>
+      </div>
+      <div class="logo"><span class="speak">Speak</span> <span class="amp">&amp;</span> <span class="spell">Spell</span></div>
+    </div>
+
+    <div class="controls">
+      <button id="replay" type="button">Replay</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const textStage = document.getElementById('textStage');
+  const loadingStage = document.getElementById('loadingStage');
+  const mapStage = document.getElementById('mapStage');
+  const screenText = document.getElementById('screenText');
+  const mapRoute = document.getElementById('mapRoute');
+  const replay = document.getElementById('replay');
+  const goKey = document.getElementById('goKey');
+
+  let timers = [];
+  let audioCtx = null;
+  let sequenceToken = 0;
+
+  const stages = [
+    {type:'text', text:'ET TRANSMISSION DETECTED', speed:48, hold:1650, message:false},
+    {type:'text', text:'DECODING', speed:64, hold:1200, message:false},
+    {type:'text', text:'PHONE HOME', speed:85, hold:1700, message:true},
+    {type:'loading', hold:1800},
+    {type:'text', text:'LINK ESTABLISHED', speed:62, hold:1350, message:false, vibrate:true},
+    {type:'text', text:'SIGNAL LOCKED', speed:66, hold:1350, message:false},
+    {type:'map', hold:3400},
+    {type:'text', text:'POSITION CONFIRMED', speed:58, hold:1450, message:false},
+    {type:'text', text:'BE RIGHT HERE', speed:68, hold:999999, message:false}
+  ];
+
+
+  function ensureAudio(){
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if(!AudioContextClass) return null;
+    if(!audioCtx) audioCtx = new AudioContextClass();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function tone(freq=700, duration=0.055, volume=0.028, type='square', delay=0){
+    const ctx = ensureAudio();
+    if(!ctx) return;
+
+    const start = ctx.currentTime + delay;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, start);
+
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, volume), start + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + duration + 0.02);
+  }
+
+  function typingTick(ch){
+    if(ch === ' ') return;
+    const code = ch.charCodeAt(0);
+    tone(620 + (code % 7) * 24, 0.035, 0.013, 'square');
+  }
+
+  function phoneHomeSound(){
+    tone(620, 0.14, 0.035, 'square', 0);
+    tone(820, 0.18, 0.035, 'square', 0.13);
+  }
+
+  function linkSound(){
+    tone(520, 0.11, 0.03, 'square', 0);
+    tone(690, 0.11, 0.03, 'square', 0.11);
+    tone(880, 0.18, 0.035, 'square', 0.22);
+  }
+
+  function lockedSound(){
+    tone(760, 0.08, 0.028, 'square', 0);
+    tone(760, 0.14, 0.032, 'square', 0.10);
+  }
+
+  function positionSound(){
+    tone(640, 0.10, 0.028, 'triangle', 0);
+    tone(800, 0.10, 0.028, 'triangle', 0.10);
+    tone(1040, 0.22, 0.032, 'triangle', 0.20);
+  }
+
+  function loadingBlips(token){
+    const pattern = [540, 620, 700];
+    pattern.forEach((freq, i) => {
+      later(() => {
+        if(token === sequenceToken) tone(freq, 0.05, 0.016, 'square');
+      }, i * 380);
+    });
+  }
+
+  function mapBlips(token){
+    [0, 650, 1300, 1950, 2600].forEach((ms, i) => {
+      later(() => {
+        if(token === sequenceToken) tone(520 + i * 55, 0.045, 0.012, 'sine');
+      }, ms);
+    });
+  }
+
+  function clearTimers(){
+    timers.forEach(clearTimeout);
+    timers = [];
+  }
+
+  function later(fn, ms){
+    const id = setTimeout(fn, ms);
+    timers.push(id);
+  }
+
+  function setView(name){
+    textStage.classList.remove('active');
+    loadingStage.classList.remove('active');
+    mapStage.classList.remove('active');
+    if(name === 'text') textStage.classList.add('active');
+    if(name === 'loading') loadingStage.classList.add('active');
+    if(name === 'map') mapStage.classList.add('active');
+  }
+
+  function reset(){
+    clearTimers();
+    screenText.textContent = '';
+    screenText.className = '';
+    setView('text');
+    mapRoute.classList.remove('animate');
+  }
+
+  function typeLine(text, speed=60, isMessage=false, token=sequenceToken){
+    return new Promise(resolve => {
+      setView('text');
+      screenText.textContent = '';
+      const classes = [];
+      if (isMessage) classes.push('message');
+      if (text.length > 22) classes.push('long');
+      screenText.className = classes.join(' ');
+      let i = 0;
+
+      function step(){
+        if(token !== sequenceToken){
+          resolve();
+          return;
+        }
+
+        if(i <= text.length){
+          screenText.textContent = text.slice(0, i);
+          if(i > 0) typingTick(text[i - 1]);
+          i += 1;
+          later(step, speed);
+        } else {
+          resolve();
+        }
+      }
+      step();
+    });
+  }
+
+  function vibrateHere(){
+    if(navigator.vibrate){
+      navigator.vibrate([45,70,45,100,45]);
+    }
+  }
+
+  async function playSequence(){
+    ensureAudio();
+    sequenceToken += 1;
+    const token = sequenceToken;
+
+    reset();
+    goKey.classList.remove('ready');
+
+    for(const stage of stages){
+      if(token !== sequenceToken) return;
+
+      if(stage.type === 'text'){
+        await typeLine(stage.text, stage.speed, stage.message, token);
+        if(token !== sequenceToken) return;
+
+        if(stage.text === 'PHONE HOME') phoneHomeSound();
+        if(stage.text === 'LINK ESTABLISHED'){
+          linkSound();
+          vibrateHere();
+        }
+        if(stage.text === 'SIGNAL LOCKED') lockedSound();
+        if(stage.text === 'POSITION CONFIRMED') positionSound();
+
+        await new Promise(res => later(res, stage.hold));
+      } else if(stage.type === 'loading'){
+        setView('loading');
+        loadingBlips(token);
+        await new Promise(res => later(res, stage.hold));
+      } else if(stage.type === 'map'){
+        setView('map');
+        mapRoute.classList.remove('animate');
+        void mapRoute.getBBox();
+        mapRoute.classList.add('animate');
+        mapBlips(token);
+        await new Promise(res => later(res, stage.hold));
+      }
+    }
+  }
+
+  function startFromUserGesture(){
+    ensureAudio();
+    playSequence();
+  }
+
+  goKey.addEventListener('click', startFromUserGesture);
+  goKey.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      startFromUserGesture();
+    }
+  });
+
+  replay.addEventListener('click', startFromUserGesture);
+
+  // Mobile browsers require a tap before audible Web Audio can start,
+  // so the sequence waits for the physical-looking GO key.
+  reset();
+  goKey.classList.add('ready');
+})();
+</script>
+</body>
+</html>
