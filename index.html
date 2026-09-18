@@ -318,51 +318,53 @@ button:active{
     0 1px 0 #824507;
 }
 @media (max-width:420px){
-  .wrap{padding:2px}
+  .wrap{
+    padding:8px 4px;
+    align-items:start;
+  }
   .toy{
-    width:99vw;
-    min-height:98svh;
-    padding:8px 8px 12px;
+    width:min(94vw, calc(88svh * 0.72));
+    padding:8px 8px 11px;
     border-radius:26px 26px 14px 14px;
   }
   .handle{
-    height:44px;
-    width:88%;
+    height:42px;
+    width:86%;
     margin-bottom:8px;
   }
   .band{
-    grid-template-columns:62px 1fr;
+    height:104px;
+    grid-template-columns:60px 1fr;
     gap:8px;
     padding:8px;
-  }
-  .display{
-    min-height:100%;
   }
   .keypad{
     margin-top:8px;
     padding:7px 7px 9px;
   }
-  .keys{
-    gap:5px;
-  }
+  .keys{gap:5px}
   .key{
-    height:24px;
+    height:23px;
     font-size:10px;
   }
   .logo{
-    margin-top:8px;
-    font-size:17px;
-    padding-left:6px;
+    margin-top:7px;
+    font-size:16px;
+    padding-left:5px;
   }
   .controls{
     margin-top:8px;
   }
   button{
-    min-width:132px;
-    padding:11px 16px;
+    min-width:126px;
+    padding:10px 15px;
   }
   #screenText{
-    font-size:clamp(14px, 5vw, 22px);
+    font-size:clamp(13px, 4.4vw, 20px);
+  }
+  #screenText.long{
+    font-size:clamp(11px, 3.65vw, 17px);
+    letter-spacing:.01em;
   }
 }
 
